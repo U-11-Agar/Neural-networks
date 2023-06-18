@@ -4,10 +4,11 @@
 #include <algorithm>
 #include <ctime>
 #include <stdlib.h>
+
 using namespace std;
 
 #define max_error 4.9406564584124654e-324 // #define a()
-
+const double PI_over_2=3.1415926536*0.5;
 int n;
 vector<vector<long double > > neuron;
 vector<vector<vector<long double > > > weight;
@@ -65,7 +66,7 @@ void topo(void)
     }
     cout << endl;
     neuron_(net);
-    return;
+    // return;
 }
 
 void input_layer(long double a)
@@ -405,8 +406,8 @@ signed main(void)
         return 0;
     }
     else
-    {
-        for (long double i = 0; i <= acos(0.0); i += 0.001)
+    {   
+        for (long double i = 0; i <= PI_over_2; i += 0.001)
         {
             // a=(long double)(rand()%5);
             // b=(long double)rand() / (RAND_MAX);

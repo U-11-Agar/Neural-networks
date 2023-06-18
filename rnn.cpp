@@ -311,7 +311,8 @@ void cal_new_weight_rnn_(void)
     {
         for (int j=0;j<weight_rnn[i].size();j++)
         {
-            demo
+            demo=error_neuron[i+2][j]*neuron[i+1][j]*dif_activation_fn(neuron[i+1][j]);
+            weight_rnn[i][j]-=alpha*demo;
         }
     }
 }
@@ -330,6 +331,7 @@ void cal_new_weight()
             }
         }
     }
+    print_w_values();
     return;
 }
 

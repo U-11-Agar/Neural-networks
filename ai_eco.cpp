@@ -4,19 +4,17 @@
 #include <algorithm>
 #include <ctime>
 #include <stdlib.h>
+// #include<gr
 using namespace std;
 
-#define max_error 1e-3 // #define a()
+#define max_error 4.9406564584124654e-324 // #define a()
 
 int n;
-vector<vector<long double>> neuron;
-vector<vector<vector<long double>>> weight;
-vector<vector<long double>> weight_b;
+vector<vector<long double> > neuron;
+vector<vector<vector<long double > > > weight;
+vector<vector<long double > > weight_b;
 vector<long double> actual_value;
-vector<vector<vector<long double>>> error_weight;
-vector<vector<long double>> error_neuron;
-// long double a;
-// long double b;
+vector<vector<long double > > error_neuron;
 long double alpha;
 long double alpha_rate;
 
@@ -47,41 +45,43 @@ void neuron_(const vector<int> &net)
 
 void topo(void)
 {
-    cout << "how many layer you want(inlcuding the and the output layer input layer)\n";
-    cin>>n;
-    // n = 5;
-    cout << "enter the no of neuron in each layer\n";
+    cout << "how many layer you want(inlcuding the input layer)"<<endl;
+    cin >> n;
     vector<int> net(n, 0);
+    printf("enter the no of neuron in the first layer\n");
+    int temp;
+    cin >> temp;
+    net[0] = temp;
+    printf("enter the no of neuron in the last layer\n");
+    cin >> temp;
+    net[n - 1] = temp;
+    for (int i = 1; i < n - 1; i++)
+    {
+       net[i] = rand() % 10 + 1;
+    }
+    cout<<"the structure of the neural network generated ramdomly is "<<endl;
     for (int i = 0; i < n; i++)
     {
-        cin >> net[i];
+        cout << net[i]<<"-";// << endl;
     }
-    // net[0] = 1;
-    // net[1] = 2;
-    // net[2] = 3;
-    // net[3] = 2;
-    // net[4] = 1;
-    // cout << "the network is 1-2-3-2-1" << endl;
-    for (int i = 0; i < n; i++)
-    {
-        cout << net[i] << endl;
-    }
+    cout<<endl;
     neuron_(net);
     return;
 }
 
 void input_layer(long double a)
 {
-    cout << "input the input layer vector" << endl;
+    cout << "input the input layer vector are" << endl;
     for (int i = 0; i < neuron[0].size(); i++)
     {
-        neuron[0][i] = a;
+        neuron[0][i] = sin(a);
+        cout<<neuron[0][i]<<endl;
     }
-    print_n_value();
+    // print_n_value();
     return;
 }
 
-void resize_error_weight(vector<vector<vector<long double>>> &error_weight)
+void resize_error_weight(vector<vector<vector<long double> > > &error_weight)
 {
     error_weight.resize(n - 1);
     for (int i = 0; i < n - 1; i++)
@@ -102,9 +102,9 @@ void print_w_values()
     {
         for (int j = 0; j < weight[i].size(); j++)
         {
-            printf("the value of the weights for the neurons in the %d layer and for the %d neuron are\n", i + 1, j + 1);
             for (int k = 0; k < weight[i][j].size(); k++)
             {
+            printf("the value of the weights for the %d neurons in the layer %d to the %d neuron of the layer %d\n", k+1, i + 1, j + 1,i+2);
                 cout << weight[i][j][k] << endl;
             }
         }
@@ -114,39 +114,31 @@ void print_w_values()
 
 void weights()
 {
-    // weight.resize(neuron.size() - 1);
-    // for (int i = 0; i < n - 1; i++)
-    // {
-    //     weight[i].resize(neuron[i + 1].size());
-    //     for (int j = 0; j < weight[i].size(); j++)
-    //     {
-    //         weight[i][j].resize(neuron[i].size(), 0);
-    //     }
-    // }
-
     resize_error_weight(weight);
-
-    // std::transform(weight.begin(),weight.end(),weight.begin(),rand_());
     for (int i = 0; i < n - 1; i++)
     {
         for (int j = 0; j < weight[i].size(); j++)
         {
             for (int k = 0; k < weight[i][j].size(); k++)
             {
-                weight[i][j][k] = ((long double)rand() / (RAND_MAX));
-                // weight[i][j][k]=(long double) (b);
+                if (k%2==0)
+                {
+                  weight[i][j][k] = (long double)(rand() % 10 + 1);
+                }
+                else
+                {
+                    weight[i][j][k] = ((long double)rand() / (RAND_MAX));
+                }
             }
         }
     }
-
     print_w_values();
-
     return;
 }
 
 void print_baise_weight()
 {
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < n - 1; i++)
     {
         printf("the value of the baise terms for %d layer\n", i + 1);
         for (int j = 0; j < weight_b[i].size(); j++)
@@ -159,19 +151,24 @@ void print_baise_weight()
 
 void baised()
 {
-    // baise.resize(n, 1);
     weight_b.resize(n);
     for (int i = 0; i < n - 1; i++)
     {
-        weight_b[i].resize(n * neuron[i + 1].size(), 0);
+        weight_b[i].resize(neuron[i + 1].size(), 0);
     }
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < n - 1; i++)
     {
 
         for (int j = 0; j < weight_b[i].size(); j++)
         {
+            if (j%2==0)
+            {
+            weight_b[i][j] = ((long double)(rand() % 10 + 1));
+            }
+            else
+            {
             weight_b[i][j] = ((long double)rand() / (RAND_MAX));
-            // weight_b[i][j] = (long double)(b);
+            }
         }
     }
     print_baise_weight();
@@ -194,7 +191,7 @@ void test_input(long double a)
     printf("input the actual value vector of size %ld\n", neuron[n - 1].size());
     for (int i = 0; i < actual_value.size(); i++)
     {
-        actual_value[i] = sin(a);
+        actual_value[i] = sin(a+0.0001);
     }
 
     print_actual();
@@ -203,9 +200,8 @@ void test_input(long double a)
 
 long double activation_fn(long double demo)
 {
-    // here the activation fn is sigmoid
-    // return ((1.0) / (1 + exp((-1) * demo)));
-    return tanh(demo);
+    // return tanh(demo);
+    return demo;
 }
 
 void feed_forward()
@@ -225,7 +221,6 @@ void feed_forward()
         }
         demo = 0.0;
     }
-    print_n_value();
     return;
 }
 
@@ -242,13 +237,13 @@ void resize_error_neuron()
 long double error_nn()
 {
     long double demo;
-    // printf("the error is calculated by mse");
-    // cin>>demo;
+    long double temp;
     for (int i = 0; i < neuron[n - 1].size(); i++)
     {
         demo = pow((neuron[n - 1][i] - actual_value[i]), 2);
         demo /= 2.0;
-        error_neuron[n - 1][i] = demo;
+        temp= actual_value[i]-neuron[n - 1][i];
+        error_neuron[n - 1][i] = temp;
     }
     demo = *max_element(error_neuron[n - 1].begin(), error_neuron[n - 1].end());
     return demo;
@@ -256,35 +251,32 @@ long double error_nn()
 
 long double dif_activation_fn(long double n_value)
 {
-    // this function returns the value of the diffential activation
-    long double demo;
-    demo = (1 - pow(n_value, 2));
-    // demo = (1 - n_value) * n_value;
-    return demo;
-    // return 1- pow(n_value,2);
+
+    // long double demo;
+    // demo = (1 - pow(n_value, 2));
+
+    // return demo;
+return 1;
 }
 
-void cal_new_weight(long double alpha)
+void cal_new_weight()
 {
     long double demo = 0;
-    // int alpha ;
-    for (int i = n - 1; i >= 1; i--)
+    for (int i = 1; i < n-1; i++)
     {
-        for (int j = 0; j < neuron[i].size(); j++)
+        for (int j = 0; j < neuron[i+1].size(); j++)
         {
-            for (int k = 0; k < neuron[i - 1].size(); k++)
+            for (int k = 0; k < neuron[i].size(); k++)
             {
-                demo = error_neuron[i][j] * (neuron[i - 1][k] * dif_activation_fn(neuron[i][j]));
-                // error_weight[i-1][j][k]=demo;
-                // if ()
-                weight[i - 1][j][k] -= (alpha * error_weight[i - 1][j][k]);
+                demo = error_neuron[i+1][j] * (neuron[i][k] * dif_activation_fn(neuron[i+1][j]));
+                weight[i-1][j][k]-=(alpha*demo);
             }
         }
     }
     return;
 }
 
-void cal_new_baise_weight(long double alpha)
+void cal_new_baise_weight()
 {
     long double demo;
     for (int i = 0; i < n - 1; i++)
@@ -300,11 +292,11 @@ void cal_new_baise_weight(long double alpha)
     return;
 }
 
-void cal_error_neuron(long double alpha)
+void cal_error_neuron()
 {
-
+  
     long double demo = 0.0;
-    for (int i = n - 1; i >= 1; i--)
+    for (int i = n - 1; i > 1; i--)
     {
         for (int j = 0; j < neuron[i - 1].size(); j++)
         {
@@ -314,26 +306,17 @@ void cal_error_neuron(long double alpha)
                 demo += error_neuron[i][k] * (weight[i - 1][k][j] * dif_activation_fn(neuron[i][j]));
             }
             error_neuron[i - 1][j] = demo;
-            neuron[i - 1][j] -= (alpha * demo);
         }
     }
     cout << "error of the neurons r calculated" << endl;
-    // error_neuron[0].resize(neuron[0].size(),0);
-    // print_error_n();
-    cal_new_weight(alpha);
-    cal_new_baise_weight(alpha);
+    cal_new_weight();
+    cal_new_baise_weight();
     return;
 }
 
 void back_prop()
 {
     long double demo, demo1;
-    // long double alpha;
-    // long double alpha_rate;
-    // printf("input the initial learning rate that you what to train your neuron and weights with\n");
-    // cin >> alpha;
-    // printf("the rate at which you want to decrease alpha is\n");
-    // cin>>alpha_rate;
     demo = 0;
     demo1 = 0;
     long long int t = 0;
@@ -341,44 +324,33 @@ void back_prop()
     demoi = alpha;
     while (1)
     {
-        // printf("hey !!!!\n");
+
         feed_forward();
         demo = error_nn();
-        // cost_fn();
-        // printf("return to back_prop\n");
+    alpha_rate=((long double)rand() / (RAND_MAX))/10000;
         if (demo == demo1)
         {
             alpha -= (alpha_rate * alpha);
-            // pause(1);
-            cout << "alpha" << alpha << endl
-                 << endl
-                 << endl;
+            cout << endl<<"**********"<<endl
+                 << alpha << endl;
         }
-        // else if (demo>demo1)
-        // {
-        //     printf("\n8\n*\n*\n*\n*\n*\n*\n");
-        // }
-        // else if (demo > demo1)
-        // {
-        //     alpha += (alpha_rate * alpha);
-        //     // }
-        // }
+        else if (demo > demo1)
+        {
+            printf("\n8\n*\n*\n*\n*\n*\n*\n");
+            alpha += (alpha_rate * alpha);
+            cout << "**********\n"
+                 << alpha << endl;
+        }
+        demo1 = demo;
+        cout << "demo_error" << demo << endl;
+        t += 1;
+        cout << t << endl;
         if (demo < max_error)
         {
             printf("this is the break\n");
             break;
         }
-        // check the stoping condition here
-        // for(int i=neuron.size()-1;i>=1;i--)
-        // {
-        //     // error_nn(neuron[i],,i);
-        //     cal_error_neuron();
-        // }
-        cal_error_neuron(alpha);
-        demo1 = demo;
-        cout << "demo_error      " << demo << endl;
-        t += 1;
-        cout << t << endl;
+        cal_error_neuron();
     }
     alpha = demoi;
     return;
@@ -392,42 +364,64 @@ signed main(void)
     srand(time(0));
     weights();
     baised();
+            resize_error_neuron();
     printf("input the initial learning rate that you what to train your neuron and weights with\n");
-    cin >> alpha;
+    // cin >> alpha;
+    // alpha = ((long double)rand() / (RAND_MAX));
+    alpha=0.637896000;
+    cout << "the valus aplha is" << endl
+         << alpha << endl;
     printf("the rate at which you want to decrease alpha is\n");
-    cin >> alpha_rate;
-    for (long double i = 0; i < 5; i += 0.0001)
+    // cin >> alpha_rate;
+    alpha_rate=((long double)rand() / (RAND_MAX))/10000;
+    // alpha_rate = alpha / 10000;
+    cout << "the valus aplha rate is" << endl
+         << alpha_rate << endl;
+    cout << "do you want to start (y/n)" << endl;
+    char start;
+    cin >> start;
+    if (start == 'n' || start == 'N')
     {
-        // a=(long double)(rand()%5);
-        // b=(long double)rand() / (RAND_MAX);
-        input_layer(i);
-        test_input(i);
-        resize_error_neuron();
-        resize_error_weight(error_weight);
-        back_prop();
-        for (int j = 0; j < 10; j++)
-        {
-            for (int k = 0; k < 10; k++)
-            {
-                printf("*_*_");
-            }
-        }
-        // printf("the best weight for the max_error = 1e-4 is \n");
-        // print_w_values();
-        // print_baise_weight();
-        // cout<<endl<<endl;
-        // print_n_value();
+        return 0;
     }
-    long double test;
-    cout << "input the value for which you want to test the NN" << endl;
-    for (int i = 0; i < 10; i++)
+    else
     {
-        cout << "the " << i << " input" << endl;
-        cin >> test;
-        input_layer(test);
-        feed_forward();
-        cout << neuron[n - 1][0];
-        cout << sin(test);
+        for (long double i = 0; i <=acos(0.0); i += 0.001)
+        {
+            // a=(long double)(rand()%5);
+            // b=(long double)rand() / (RAND_MAX);
+            cout << i<<endl;
+            input_layer(i);
+            test_input(i);
+            // resize_error_weight(error_weight);
+            back_prop();
+            // for (int j = 0; j < 10; j++)
+            // {
+                for (int k = 0; k < 10; k++)
+                {
+                    printf("*_*_");
+                    cout<<endl;
+                }
+            // }
+            // printf("the best weight for the max_error = 1e-4 is \n");
+            // print_w_values();
+            // print_baise_weight();
+            // cout<<endl<<endl;
+            // print_n_value();
+        }
+        long double test;
+        cout << "input the value for which you want to test the NN" << endl;
+        for (int i = 0; i < 1; i += 0.001)
+        {
+            // cout << "the " << i << " input" << endl;
+            test_input(acos(0.0)+i);
+            input_layer(acos(0.0)+i);
+            feed_forward();
+            cout <<endl<<"the prdicted value is"<<endl<< neuron[n - 1][0]<<endl;
+            cout << sin(acos(0.0)+(2*i))<<endl;
+            back_prop();
+            // cin >> test;
+        }
     }
     // while(1)
     // {
@@ -445,7 +439,3 @@ signed main(void)
     // }
     return 0;
 }
-
-// make a error vector for the weights for the backprop
-// i can have dynamic programming to store the value of the error or vactor
-// dynamic gradient step value alpha
